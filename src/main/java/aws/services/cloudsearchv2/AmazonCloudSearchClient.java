@@ -193,8 +193,8 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 	 * 
 	 * @param documents The documents that need to added or updated
 	 * @throws JSONException 
-	 * @throws AwsCSMalformedRequestException 
-	 * @throws AwsCSInternalServerException 
+	 * @throws AmazonCloudSearchInternalServerException
+	 * @throws AmazonCloudSearchRequestException
 	 */
 	public void addDocuments(List<AmazonCloudSearchAddRequest> documents) throws JSONException, AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException {
 		JSONArray docs = new JSONArray();
@@ -210,8 +210,8 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 	 * A delete operation is only applied to an existing document if the version number specified in the operation is greater than the existing document's version number.
 	 * 
 	 * @param document
-	 * @throws AwsCSMalformedRequestException
-	 * @throws AwsCSInternalServerException
+	 * @throws AmazonCloudSearchRequestException
+	 * @throws AmazonCloudSearchInternalServerException
 	 * @throws JSONException
 	 */
 	public void deleteDocument(AmazonCloudSearchDeleteRequest document) throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
@@ -224,9 +224,9 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 	 * A delete operation specifies existing documents that you want to delete.
 	 * A delete operation is only applied to an existing document if the version number specified in the operation is greater than the existing document's version number.
 	 * 
-	 * @param document
-	 * @throws AwsCSMalformedRequestException
-	 * @throws AwsCSInternalServerException
+	 * @param documents
+	 * @throws AmazonCloudSearchRequestException
+	 * @throws AmazonCloudSearchInternalServerException
 	 * @throws JSONException
 	 */
 	public void deleteDocuments(List<AmazonCloudSearchDeleteRequest> documents) throws JSONException, AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException {
@@ -236,6 +236,27 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 		}
 		updateDocumentRequest(docs.toString());
 	}
+
+    public void deleteAllDocuments() throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
+        JSONArray docs = new JSONArray();
+
+        for(Hit hit : findAllDocuments().hits){
+            JSONObject doc = new JSONObject();
+            doc.put("id", hit.id);
+            doc.put("type", "delete");
+            docs.put(doc);
+        }
+
+        updateDocumentRequest(docs.toString());
+    }
+
+    public AmazonCloudSearchResult findAllDocuments() throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
+        AmazonCloudSearchQuery matchAllQuery = new AmazonCloudSearchQuery();
+        matchAllQuery.query = "all|-all";
+        matchAllQuery.start = 0;
+        matchAllQuery.size = 999;
+        return this.search(matchAllQuery);
+    }
 	
 	private void updateDocumentRequest(String body) throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException {
 		try {

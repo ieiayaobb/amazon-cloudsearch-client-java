@@ -6,3 +6,6 @@ target/*
 bin/
 /target
 .DS_Store
+
+src/main/java/aws/services/cloudsearchv2/CloudSearchClient.java
+amazon-cloudsearch-client.iml

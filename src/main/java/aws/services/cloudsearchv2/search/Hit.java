@@ -56,4 +56,12 @@ public class Hit {
 		
 		return rlt;
 	}
+
+    @Override
+    public String toString() {
+        return "Hit{" +
+                "id='" + id + '\'' +
+                ", fields=" + fields +
+                '}';
+    }
 }

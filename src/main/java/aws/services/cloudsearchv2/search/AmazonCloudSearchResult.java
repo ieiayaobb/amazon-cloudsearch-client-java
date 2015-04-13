@@ -19,4 +19,15 @@ public class AmazonCloudSearchResult {
 	public int start;
 	
 	public List<Hit> hits;
+
+    @Override
+    public String toString() {
+        return "AmazonCloudSearchResult{" +
+                "rid='" + rid + '\'' +
+                ", time=" + time +
+                ", found=" + found +
+                ", start=" + start +
+                ", hits=" + hits +
+                '}';
+    }
 }
