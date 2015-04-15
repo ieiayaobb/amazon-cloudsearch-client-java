@@ -35,6 +35,11 @@
       <artifactId>fluent-hc</artifactId>
       <version>4.2</version>
     </dependency>
+      <dependency>
+          <groupId>org.mongodb</groupId>
+          <artifactId>mongo-java-driver</artifactId>
+          <version>2.11.3</version>
+      </dependency>
   </dependencies>
   
   <!--<build>-->
@@ -55,4 +60,32 @@
       <!--</plugin>-->
     <!--</plugins>-->
   <!--</build>-->
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>indexer</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/jar-with-dependencies.xml</descriptor>
+                            </descriptors>
+                            <finalName>Indexer</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>aws.services.cloudsearchv2.Indexer</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import aws.services.cloudsearchv2.search.FacetResult;
+import com.mongodb.util.JSON;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
@@ -255,7 +252,7 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
         matchAllQuery.query = "all|-all";
         matchAllQuery.start = 0;
         matchAllQuery.size = 999;
-        return this.search(matchAllQuery);
+        return this.query(matchAllQuery);
     }
 	
 	private void updateDocumentRequest(String body) throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException {
@@ -384,16 +381,16 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 	}	
 	
 	/**
-	 * Execute a search and return result.
+	 * Execute a query and return result.
 	 * 
-	 * @param query search query to be executed.
-	 * @return result of the search.
+	 * @param query query query to be executed.
+	 * @return result of the query.
 	 * @throws AmazonCloudSearchRequestException 
 	 * @throws IllegalStateException 
 	 * @throws AmazonCloudSearchInternalServerException 
 	 * @throws JSONException 
 	 */
-	public AmazonCloudSearchResult search(AmazonCloudSearchQuery query) throws IllegalStateException, AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
+	public AmazonCloudSearchResult query(AmazonCloudSearchQuery query) throws IllegalStateException, AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
 		AmazonCloudSearchResult result = null;
 		
 		try {
@@ -461,6 +458,19 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 				}
 			}
 		}
+
+        JSONObject facets = root.getJSONObject("facets");
+        if(facets != null){
+            Iterator keyIterator = facets.keys();
+            while (keyIterator.hasNext()){
+                String key = (String) keyIterator.next();
+                JSONArray buckets = (JSONArray) ((JSONObject) facets.get(key)).get("buckets");
+                List<FacetResult> facetResultList = new LinkedList<FacetResult>();
+                for(int i = 0;i < buckets.length();i++){
+                    facetResultList.add(new FacetResult((JSONObject)buckets.get(i)));
+                }
+            }
+        }
 		
 		return result;
 	}
