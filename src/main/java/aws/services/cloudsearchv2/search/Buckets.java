@@ -8,6 +8,10 @@ import java.util.List;
 public class Buckets {
     private List<FacetResult> facetResultList;
 
+    public Buckets(List<FacetResult> facetResultList){
+        this.facetResultList = facetResultList;
+    }
+
     public int getValueCount(){
         return 0;
     }

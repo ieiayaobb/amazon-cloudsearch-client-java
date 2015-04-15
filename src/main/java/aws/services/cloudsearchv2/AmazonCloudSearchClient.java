@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.*;
 
-import aws.services.cloudsearchv2.search.FacetResult;
+import aws.services.cloudsearchv2.search.*;
 import com.mongodb.util.JSON;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -17,9 +17,6 @@ import org.apache.http.entity.ContentType;
 
 import aws.services.cloudsearchv2.documents.AmazonCloudSearchAddRequest;
 import aws.services.cloudsearchv2.documents.AmazonCloudSearchDeleteRequest;
-import aws.services.cloudsearchv2.search.AmazonCloudSearchQuery;
-import aws.services.cloudsearchv2.search.AmazonCloudSearchResult;
-import aws.services.cloudsearchv2.search.Hit;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -168,15 +165,15 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
     public AmazonCloudSearchClient(AWSCredentialsProvider awsCredentialsProvider, ClientConfiguration clientConfiguration, RequestMetricCollector requestMetricCollector) {
         super(awsCredentialsProvider, clientConfiguration, requestMetricCollector);
     }
-	
+
 	/**
 	 * An add operation specifies either a new document that you want to add to the index or an existing document that you want to update.
 	 * An add operation is only applied to an existing document if the version number specified in the operation is greater than the existing document's version number.
-	 * 
+	 *
 	 * @param document The document that need to added or updated
-	 * @throws AwsCSMalformedRequestException 
-	 * @throws AwsCSInternalServerException 
-	 * @throws JSONException 
+	 * @throws AmazonCloudSearchRequestException
+	 * @throws AmazonCloudSearchInternalServerException
+	 * @throws JSONException
 	 */
 	public void addDocument(AmazonCloudSearchAddRequest document) throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
 		JSONArray docs = new JSONArray();
@@ -237,7 +234,7 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
     public void deleteAllDocuments() throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
         JSONArray docs = new JSONArray();
 
-        for(Hit hit : findAllDocuments().hits){
+        for(Hit hit : findAllDocuments().getHits()){
             JSONObject doc = new JSONObject();
             doc.put("id", hit.id);
             doc.put("type", "delete");
@@ -427,15 +424,15 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 		JSONObject root = new JSONObject(responseBody);
 		JSONObject status = root.getJSONObject("status");
 		if(status != null) {
-			result.rid = status.getString("rid");
-			result.time = status.getLong("time-ms");
+			result.setRid(status.getString("rid"));
+			result.setTime(status.getLong("time-ms"));
 		}
 		
 		JSONObject hits = root.getJSONObject("hits");
 		if(hits != null) {
-			result.found = hits.getInt("found");
-			result.start = hits.getInt("start");
-			if(result.found > 0) {
+			result.setFound(hits.getInt("found"));
+			result.setStart(hits.getInt("start"));
+			if(result.getFound() > 0) {
 				JSONArray hitArray = hits.getJSONArray("hit");
 				if(hitArray != null) {
 					for(int i = 0; i < hitArray.length(); i++) {
@@ -450,10 +447,10 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 							}
 							hit.fields.put(name, fields.getString(name));
 						}
-						if(result.hits == null) {
-							result.hits = new ArrayList<Hit>();
+						if(result.getHits() == null) {
+							result.setHits(new ArrayList<Hit>());
 						}
-						result.hits.add(hit);
+						result.getHits().add(hit);
 					}
 				}
 			}
@@ -464,11 +461,23 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
             Iterator keyIterator = facets.keys();
             while (keyIterator.hasNext()){
                 String key = (String) keyIterator.next();
-                JSONArray buckets = (JSONArray) ((JSONObject) facets.get(key)).get("buckets");
+                JSONArray bucketsJSONArr = (JSONArray) ((JSONObject) facets.get(key)).get("buckets");
                 List<FacetResult> facetResultList = new LinkedList<FacetResult>();
-                for(int i = 0;i < buckets.length();i++){
-                    facetResultList.add(new FacetResult((JSONObject)buckets.get(i)));
+                for(int i = 0;i < bucketsJSONArr.length();i++){
+                    facetResultList.add(new FacetResult((JSONObject)bucketsJSONArr.get(i)));
                 }
+                Buckets buckets = new Buckets(facetResultList);
+                result.getFacets().put(key, buckets);
+            }
+        }
+
+        JSONObject stats = root.getJSONObject("stats");
+        if(stats != null){
+            Iterator keyIterator = stats.keys();
+            while (keyIterator.hasNext()){
+                String key = (String) keyIterator.next();
+                FieldStatsInfo fieldStatsInfo = new FieldStatsInfo((JSONObject) stats.get(key));
+                result.getFieldStatsInfo().put(key, fieldStatsInfo);
             }
         }
 		
