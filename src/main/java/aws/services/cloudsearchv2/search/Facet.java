@@ -48,4 +48,16 @@ public class Facet {
 	/**
 	 * size specifies the maximum number of facets to include in the results. By default, Amazon CloudSearch returns counts for the top 10. The size parameter is only valid when you specify the sort option; it cannot be used in conjunction with buckets.	 */
 	public Integer size;
+
+	public Facet() {
+	}
+
+	public Facet(String field) {
+		this.field = field;
+	}
+
+	public Facet(String field, Integer size){
+		this.field = field;
+		this.size = size;
+	}
 }

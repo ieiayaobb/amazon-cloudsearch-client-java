@@ -1,5 +1,6 @@
 package aws.services.cloudsearchv2.search;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,14 @@ public class AmazonCloudSearchResult {
 
     public Map<String, Buckets> getFacets() {
         return facets;
+    }
+
+    public void initFacets(){
+        this.facets = new HashMap<String, Buckets>();
+    }
+
+    public void initStats(){
+        this.stats = new HashMap<String, FieldStatsInfo>();
     }
 
     public List<Hit> getResults(){
@@ -105,7 +114,8 @@ public class AmazonCloudSearchResult {
                 ", time=" + time +
                 ", found=" + found +
                 ", start=" + start +
-                ", hits=" + hits +
+                ", facets=" + facets +
+                ", stats=" + stats +
                 '}';
     }
 }

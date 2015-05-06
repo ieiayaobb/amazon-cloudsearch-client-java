@@ -234,21 +234,25 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
     public void deleteAllDocuments() throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
         JSONArray docs = new JSONArray();
 
-        for(Hit hit : findAllDocuments().getHits()){
-            JSONObject doc = new JSONObject();
-            doc.put("id", hit.id);
-            doc.put("type", "delete");
-            docs.put(doc);
-        }
-
-        updateDocumentRequest(docs.toString());
+		while(findAllDocuments() != null && findAllDocuments().getFound() != 0) {
+			List<Hit> allHits = findAllDocuments().getHits();
+			for (Hit hit : allHits) {
+				JSONObject doc = new JSONObject();
+				doc.put("id", hit.id);
+				doc.put("type", "delete");
+				docs.put(doc);
+			}
+			System.out.println("delete 10000 records");
+			updateDocumentRequest(docs.toString());
+		}
     }
 
     public AmazonCloudSearchResult findAllDocuments() throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException, JSONException {
         AmazonCloudSearchQuery matchAllQuery = new AmazonCloudSearchQuery();
-        matchAllQuery.query = "all|-all";
+        matchAllQuery.query = "*:*";
+        matchAllQuery.queryParser = "lucene";
         matchAllQuery.start = 0;
-        matchAllQuery.size = 999;
+		matchAllQuery.size = 10000;
         return this.query(matchAllQuery);
     }
 	
@@ -456,30 +460,36 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 			}
 		}
 
-        JSONObject facets = root.getJSONObject("facets");
-        if(facets != null){
-            Iterator keyIterator = facets.keys();
-            while (keyIterator.hasNext()){
-                String key = (String) keyIterator.next();
-                JSONArray bucketsJSONArr = (JSONArray) ((JSONObject) facets.get(key)).get("buckets");
-                List<FacetResult> facetResultList = new LinkedList<FacetResult>();
-                for(int i = 0;i < bucketsJSONArr.length();i++){
-                    facetResultList.add(new FacetResult((JSONObject)bucketsJSONArr.get(i)));
-                }
-                Buckets buckets = new Buckets(facetResultList);
-                result.getFacets().put(key, buckets);
-            }
-        }
+		if(root.has("facets")) {
+			JSONObject facets = root.getJSONObject("facets");
+			if (facets != null) {
+				result.initFacets();
+				Iterator keyIterator = facets.keys();
+				while (keyIterator.hasNext()) {
+					String key = (String) keyIterator.next();
+					JSONArray bucketsJSONArr = (JSONArray) ((JSONObject) facets.get(key)).get("buckets");
+					List<FacetResult> facetResultList = new LinkedList<FacetResult>();
+					for (int i = 0; i < bucketsJSONArr.length(); i++) {
+						facetResultList.add(new FacetResult((JSONObject) bucketsJSONArr.get(i)));
+					}
+					Buckets buckets = new Buckets(facetResultList);
+					result.getFacets().put(key, buckets);
+				}
+			}
+		}
 
-        JSONObject stats = root.getJSONObject("stats");
-        if(stats != null){
-            Iterator keyIterator = stats.keys();
-            while (keyIterator.hasNext()){
-                String key = (String) keyIterator.next();
-                FieldStatsInfo fieldStatsInfo = new FieldStatsInfo((JSONObject) stats.get(key));
-                result.getFieldStatsInfo().put(key, fieldStatsInfo);
-            }
-        }
+		if(root.has("stats")) {
+			JSONObject stats = root.getJSONObject("stats");
+			if (stats != null) {
+				result.initStats();
+				Iterator keyIterator = stats.keys();
+				while (keyIterator.hasNext()) {
+					String key = (String) keyIterator.next();
+					FieldStatsInfo fieldStatsInfo = new FieldStatsInfo((JSONObject) stats.get(key));
+					result.getFieldStatsInfo().put(key, fieldStatsInfo);
+				}
+			}
+		}
 		
 		return result;
 	}

@@ -2,10 +2,7 @@ package aws.services.cloudsearchv2.search;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Please see @{link http://docs.aws.amazon.com/cloudsearch/latest/developerguide/query-api.html} for more detail.
@@ -234,6 +231,24 @@ public class AmazonCloudSearchQuery {
 	 */
 	public Integer start;
 
+	/**
+	 * TODO
+	 */
+	public List<FieldStatsInfo> stats = new LinkedList<FieldStatsInfo>();
+
+	/**
+	 * TODO
+	 */
+	public String fq;
+
+	public List<FieldStatsInfo> getStats() {
+		return stats;
+	}
+
+	public void setStats(List<FieldStatsInfo> stats) {
+		this.stats = stats;
+	}
+
 	public void addExpression(String name, String expression) {
 		expressions.put(name, expression);
 	}	
@@ -355,6 +370,20 @@ public class AmazonCloudSearchQuery {
 				builder.append(URLEncoder.encode(value.toString(), "UTF-8"));
 			}
 		}
+
+		if(stats.size() > 0){
+			for(FieldStatsInfo fieldStatsInfo : stats){
+				if(builder.length() > 0){
+					builder.append("&");
+				}
+				builder.append("stats").append(".").append(fieldStatsInfo.getField()).append("=");
+
+				StringBuilder value = new StringBuilder();
+				value.append("{");
+				value.append("}");
+				builder.append(URLEncoder.encode(value.toString(), "UTF-8"));
+			}
+		}
 		
 		
 		if(structuredQuery != null) {
@@ -411,6 +440,13 @@ public class AmazonCloudSearchQuery {
 				builder.append("&");
 			}
 			builder.append("q").append("=").append(URLEncoder.encode(query, "UTF-8"));
+		}
+
+		if(fq != null){
+			if(builder.length() > 0){
+				builder.append("&");
+			}
+			builder.append("fq").append("=").append(URLEncoder.encode(query, "UTF-8"));
 		}
 		
 		if(queryOptions.size() > 0) {

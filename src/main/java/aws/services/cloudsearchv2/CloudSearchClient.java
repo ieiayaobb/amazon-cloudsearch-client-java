@@ -5,6 +5,7 @@ import aws.services.cloudsearchv2.documents.AmazonCloudSearchDeleteRequest;
 import aws.services.cloudsearchv2.search.AmazonCloudSearchQuery;
 import aws.services.cloudsearchv2.search.AmazonCloudSearchResult;
 import aws.services.cloudsearchv2.search.Facet;
+import aws.services.cloudsearchv2.search.FieldStatsInfo;
 import com.amazonaws.util.json.JSONException;
 
 import java.util.Arrays;
@@ -26,7 +27,7 @@ public class CloudSearchClient {
 //        client.deleteDocument(deleteRequest);
 
 //        System.out.println(client.findAllDocuments());
-//        client.deleteAllDocuments();
+        client.deleteAllDocuments();
 //
 //        AmazonCloudSearchAddRequest amazonCloudSearchAddRequest = new AmazonCloudSearchAddRequest();
 //        amazonCloudSearchAddRequest.id = "new";
@@ -35,9 +36,14 @@ public class CloudSearchClient {
 
         AmazonCloudSearchQuery query = new AmazonCloudSearchQuery();
         Facet facet = new Facet();
-        facet.field = "pbdt";
+        facet.field = "claim_count";
         query.facets = Arrays.asList(facet);
-        query.query = "苏州";
+        FieldStatsInfo fieldStatsInfo1 = new FieldStatsInfo();
+        fieldStatsInfo1.setField("claim_count");
+        FieldStatsInfo fieldStatsInfo2 = new FieldStatsInfo();
+        fieldStatsInfo2.setField("page_number");
+        query.query = "shenzhen";
+        query.stats = Arrays.asList(fieldStatsInfo1, fieldStatsInfo2);
 //        query.queryParser = "simple";
 //        query.start = 0;
 //        query.size = 0;

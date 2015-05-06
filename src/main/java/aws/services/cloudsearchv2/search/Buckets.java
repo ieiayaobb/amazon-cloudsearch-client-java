@@ -13,10 +13,17 @@ public class Buckets {
     }
 
     public int getValueCount(){
-        return 0;
+        return this.facetResultList.size();
     }
 
     public List<FacetResult> getValues(){
         return facetResultList;
+    }
+
+    @Override
+    public String toString() {
+        return "Buckets{" +
+                "facetResultList=" + facetResultList +
+                '}';
     }
 }

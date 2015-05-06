@@ -49,9 +49,20 @@ public class AmazonCloudSearchAddRequest {
 		
 	public void addField(String name, Long value) {
 		fields.put(name, value);
-	}	
-	
-	public void addField(String name, List<String> values) {
+	}
+
+	public void addField(String name, Double value) {
+		fields.put(name, value);
+	}
+
+	public void addField(String name, List values) {
 		fields.put(name, values);
-	}	
+	}
+
+	@Override
+	public String toString() {
+		return "AmazonCloudSearchAddRequest{" +
+				"fields=" + fields +
+				'}';
+	}
 }

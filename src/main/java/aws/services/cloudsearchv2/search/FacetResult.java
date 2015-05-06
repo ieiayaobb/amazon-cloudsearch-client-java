@@ -23,4 +23,12 @@ public class FacetResult {
     public int getCount(){
         return count;
     }
+
+    @Override
+    public String toString() {
+        return "FacetResult{" +
+                "key='" + key + '\'' +
+                ", count=" + count +
+                '}';
+    }
 }
