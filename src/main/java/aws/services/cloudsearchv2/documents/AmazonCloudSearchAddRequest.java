@@ -3,6 +3,7 @@ package aws.services.cloudsearchv2.documents;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This is class is used to request add or update of a document.
@@ -38,24 +39,7 @@ public class AmazonCloudSearchAddRequest {
 	 */
 	public Map<String, Object> fields = new LinkedHashMap<String, Object>();
 
-	
-	public void addField(String name, String value) {
-		fields.put(name, value);
-	}	
-	
-	public void addField(String name, Integer value) {
-		fields.put(name, value);
-	}	
-		
-	public void addField(String name, Long value) {
-		fields.put(name, value);
-	}
-
-	public void addField(String name, Double value) {
-		fields.put(name, value);
-	}
-
-	public void addField(String name, List values) {
+	public void addField(String name, Object values) {
 		fields.put(name, values);
 	}
 

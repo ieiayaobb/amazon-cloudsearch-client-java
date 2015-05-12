@@ -9,6 +9,8 @@ import aws.services.cloudsearchv2.search.FieldStatsInfo;
 import com.amazonaws.util.json.JSONException;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by shenyineng on 15/4/13.
@@ -27,23 +29,26 @@ public class CloudSearchClient {
 //        client.deleteDocument(deleteRequest);
 
 //        System.out.println(client.findAllDocuments());
-        client.deleteAllDocuments();
+//        client.deleteAllDocuments();
 //
 //        AmazonCloudSearchAddRequest amazonCloudSearchAddRequest = new AmazonCloudSearchAddRequest();
-//        amazonCloudSearchAddRequest.id = "new";
-//        amazonCloudSearchAddRequest.addField("an_city", "test");
-//        client.addDocument(amazonCloudSearchAddRequest);
+//        amazonCloudSearchAddRequest.id = "new_1";
+//        amazonCloudSearchAddRequest.addField("an_city", "深圳");
+//        amazonCloudSearchAddRequest.addField("custom1", "自定义");
+//        List<AmazonCloudSearchAddRequest> addRequestList = Arrays.asList(amazonCloudSearchAddRequest);
+//
+//        client.addDocuments(addRequestList);
 
         AmazonCloudSearchQuery query = new AmazonCloudSearchQuery();
-        Facet facet = new Facet();
-        facet.field = "claim_count";
-        query.facets = Arrays.asList(facet);
-        FieldStatsInfo fieldStatsInfo1 = new FieldStatsInfo();
-        fieldStatsInfo1.setField("claim_count");
-        FieldStatsInfo fieldStatsInfo2 = new FieldStatsInfo();
-        fieldStatsInfo2.setField("page_number");
-        query.query = "shenzhen";
-        query.stats = Arrays.asList(fieldStatsInfo1, fieldStatsInfo2);
+//        Facet facet = new Facet();
+//        facet.field = "claim_count";
+//        query.facets = Arrays.asList(facet);
+//        FieldStatsInfo fieldStatsInfo1 = new FieldStatsInfo();
+//        fieldStatsInfo1.setField("claim_count");
+//        FieldStatsInfo fieldStatsInfo2 = new FieldStatsInfo();
+//        fieldStatsInfo2.setField("page_number");
+//        query.query = "shenzhen";
+//        query.stats = Arrays.asList(fieldStatsInfo1, fieldStatsInfo2);
 //        query.queryParser = "simple";
 //        query.start = 0;
 //        query.size = 0;
@@ -52,7 +57,22 @@ public class CloudSearchClient {
 //        query.addExpression("sort_expr", "(0.3*popularity)+(0.7*_score)");
 //        query.addSort("sort_expr", "desc");
 
-        AmazonCloudSearchResult result = client.query(query);
-        System.out.println(result);
+//        AmazonCloudSearchResult result = client.query(query);
+
+
+        System.out.println(client.findAllDocuments().getFound());
+//        System.out.println(result);
+
+
+        List<AmazonCloudSearchAddRequest> addRequestList = new LinkedList();
+        for (String pn : Arrays.asList("CN101005341B")) {
+            AmazonCloudSearchAddRequest addRequest = new AmazonCloudSearchAddRequest();
+            addRequest.id = "user123" + "_" + pn;
+            addRequest.addField("custom_1", "中型企业");
+            addRequest.addField("custom_2", "微生物");
+            addRequestList.add(addRequest);
+        }
+        client.addDocuments(addRequestList);
+
     }
 }
