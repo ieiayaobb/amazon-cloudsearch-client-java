@@ -258,6 +258,8 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 	
 	private void updateDocumentRequest(String body) throws AmazonCloudSearchRequestException, AmazonCloudSearchInternalServerException {
 		try {
+			Long start = System.currentTimeMillis();
+
 			Response response = Request.Post("https://" + getDocumentEndpoint() + "/2013-01-01/documents/batch")
 			        .useExpectContinue()
 			        .version(HttpVersion.HTTP_1_1)
@@ -265,8 +267,11 @@ public class AmazonCloudSearchClient extends com.amazonaws.services.cloudsearchv
 			        .bodyString(body, ContentType.APPLICATION_JSON)
 			        .execute();
 
+			Long cost = System.currentTimeMillis() - start;
+			System.out.println(" ======= Execute : " + cost + "ms ======");
+
 			HttpResponse resp = response.returnResponse();
-			
+
 			int statusCode = resp.getStatusLine().getStatusCode();
 			if(statusCode >= 400 && statusCode < 500) {
 				throw new AmazonCloudSearchRequestException(addDocumentErrorMessage(statusCode), body, inputStreamToString(resp.getEntity().getContent()));
